@@ -1,5 +1,11 @@
+<button id="startAR">Start AR</button>
+
+<script type="module">
+
+// ✅ IMPORT HARUS DI ATAS SEMUA
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.158/build/three.module.js';
 import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@0.158/examples/jsm/webxr/ARButton.js';
+// import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.158/examples/jsm/loaders/GLTFLoader.js'; // 🔥 nanti dipakai kalau sudah stabil
 
 let camera, scene, renderer;
 let controller;
@@ -14,7 +20,6 @@ function init() {
 
   // SCENE
   scene = new THREE.Scene();
-
   camera = new THREE.PerspectiveCamera();
 
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -23,7 +28,7 @@ function init() {
 
   document.body.appendChild(renderer.domElement);
 
-  // AR BUTTON (hidden, trigger manual)
+  // ✅ AR BUTTON (JANGAN DIUBAH DULU)
   const arButton = ARButton.createButton(renderer, {
     optionalFeatures: ['hit-test']
   });
@@ -39,7 +44,7 @@ function init() {
   const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
   scene.add(light);
 
-  // RETICLE (penunjuk permukaan)
+  // ✅ RETICLE (KEMBALIKAN KE RING)
   const geometry = new THREE.RingGeometry(0.08, 0.1, 32);
   const material = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide });
   reticle = new THREE.Mesh(geometry, material);
@@ -49,7 +54,7 @@ function init() {
 
   scene.add(reticle);
 
-  // CONTROLLER (tap)
+  // CONTROLLER
   controller = renderer.xr.getController(0);
   controller.addEventListener('select', onSelect);
   scene.add(controller);
@@ -57,22 +62,25 @@ function init() {
   renderer.setAnimationLoop(render);
 }
 
-// SPAWN OBJECT (ini bikin stabil)
+// ✅ SPAWN OBJECT (VERSI STABIL)
 function onSelect() {
-  if (reticle.visible) {
 
-    const geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
-    const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
-    const mesh = new THREE.Mesh(geometry, material);
+  if (!reticle.visible) return;
 
-    mesh.position.setFromMatrixPosition(reticle.matrix);
-    mesh.quaternion.setFromRotationMatrix(reticle.matrix);
+  const geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+  const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+  const mesh = new THREE.Mesh(geometry, material);
 
-    scene.add(mesh);
-  }
+  mesh.position.setFromMatrixPosition(reticle.matrix);
+  mesh.quaternion.setFromRotationMatrix(reticle.matrix);
+
+  // OPTIONAL: biar tidak miring
+  mesh.rotation.set(0, 0, 0);
+
+  scene.add(mesh);
 }
 
-// RENDER LOOP + HIT TEST
+// RENDER LOOP
 function render(timestamp, frame) {
 
   if (frame) {
@@ -80,11 +88,10 @@ function render(timestamp, frame) {
     const referenceSpace = renderer.xr.getReferenceSpace();
     const session = renderer.xr.getSession();
 
-    // REQUEST HIT TEST SOURCE
     if (!hitTestSourceRequested) {
 
-      session.requestReferenceSpace('viewer').then(function (referenceSpace) {
-        session.requestHitTestSource({ space: referenceSpace }).then(function (source) {
+      session.requestReferenceSpace('viewer').then(function (refSpace) {
+        session.requestHitTestSource({ space: refSpace }).then(function (source) {
           hitTestSource = source;
         });
       });
@@ -97,12 +104,11 @@ function render(timestamp, frame) {
       hitTestSourceRequested = true;
     }
 
-    // HIT TEST RESULT
     if (hitTestSource) {
 
       const hitTestResults = frame.getHitTestResults(hitTestSource);
 
-      if (hitTestResults.length) {
+      if (hitTestResults.length > 0) {
 
         const hit = hitTestResults[0];
         const pose = hit.getPose(referenceSpace);
@@ -123,3 +129,5 @@ function render(timestamp, frame) {
 
   renderer.render(scene, camera);
 }
+
+</script>
