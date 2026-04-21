@@ -3,9 +3,10 @@
 <script type="module">
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.158/build/three.module.js';
 import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@0.158/examples/jsm/webxr/ARButton.js';
-
+import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.158/examples/jsm/loaders/GLTFLoader.js';
+  
 let camera, scene, renderer;
-
+const loader = new GLTFLoader();
 init();
 
 function init() {
@@ -19,13 +20,24 @@ function init() {
 
   document.body.appendChild(renderer.domElement);
 
-  const geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
-  const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-  const cube = new THREE.Mesh(geometry, material);
+  loader.load(
+  'https://modelviewer.dev/shared-assets/models/Astronaut.glb',
+  function (gltf) {
 
-  cube.position.set(0, 0, -0.5);
+    const model = gltf.scene;
 
-  scene.add(cube);
+    model.scale.set(0.3, 0.3, 0.3);
+
+    // posisi di depan kamera
+    model.position.set(0, 0, -0.7);
+
+    scene.add(model);
+  },
+  undefined,
+  function (error) {
+    console.error("GLB ERROR:", error);
+  }
+);
 
   const arButton = ARButton.createButton(renderer);
   arButton.style.display = "none";
