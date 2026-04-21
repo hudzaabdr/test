@@ -1,145 +1,35 @@
 <button id="startAR">Start AR</button>
 
 <script type="module">
-
-// ✅ IMPORT HARUS DI ATAS SEMUA
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.158/build/three.module.js';
 import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@0.158/examples/jsm/webxr/ARButton.js';
-import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.158/examples/jsm/loaders/GLTFLoader.js'; // 🔥 nanti dipakai kalau sudah stabil
 
 let camera, scene, renderer;
-let controller;
-let reticle;
 
-let hitTestSource = null;
-let hitTestSourceRequested = false;
-const loader = new GLTFLoader();
 init();
 
 function init() {
 
-  // SCENE
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera();
 
-  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.xr.enabled = true;
 
   document.body.appendChild(renderer.domElement);
 
-  // ✅ AR BUTTON (JANGAN DIUBAH DULU)
+  // 🔥 TANPA hit-test dulu
   const arButton = ARButton.createButton(renderer);
-
-  arButton.style.display = 'none';
+  arButton.style.display = "none";
   document.body.appendChild(arButton);
 
   document.getElementById("startAR").onclick = () => {
     arButton.click();
   };
 
-  // LIGHT
-  const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
-  scene.add(light);
-  
-  const light2 = new THREE.DirectionalLight(0xffffff, 1);
-  light2.position.set(1, 2, 1);
-  scene.add(light2);
-
-
-  // ✅ RETICLE (KEMBALIKAN KE RING)
-  const geometry = new THREE.RingGeometry(0.08, 0.1, 32);
-  const material = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide });
-  reticle = new THREE.Mesh(geometry, material);
-
-  reticle.rotation.x = -Math.PI / 2;
-  reticle.visible = false;
-
-  scene.add(reticle);
-
-  // CONTROLLER
-  controller = renderer.xr.getController(0);
-  controller.addEventListener('select', onSelect);
-  scene.add(controller);
-
-  renderer.setAnimationLoop(render);
+  renderer.setAnimationLoop(() => {
+    renderer.render(scene, camera);
+  });
 }
-
-// ✅ SPAWN OBJECT (VERSI STABIL)
- function onSelect() {
-  console.log("TAP DETECTED");
-
-  if (!reticle.visible) return;
-
-  console.log("MODEL LOADING...");
-
-  loader.load(
-    'https://modelviewer.dev/shared-assets/models/Astronaut.glb',
-    function (gltf) {
-
-      const model = gltf.scene;
-
-      model.scale.set(1, 1, 1);
-
-      model.position.setFromMatrixPosition(reticle.matrix);
-      model.quaternion.setFromRotationMatrix(reticle.matrix);
-
-      scene.add(model);
-    },
-    undefined,
-    function (error) {
-      console.error("GLB ERROR:", error);
-    }
-  );
-}
-// RENDER LOOP
-function render(timestamp, frame) {
-
-  if (frame) {
-
-    const referenceSpace = renderer.xr.getReferenceSpace();
-    const session = renderer.xr.getSession();
-
-    if (!hitTestSourceRequested) {
-
-      session.requestReferenceSpace('viewer').then(function (refSpace) {
-        session.requestHitTestSource({ space: refSpace }).then(function (source) {
-          hitTestSource = source;
-        });
-      });
-
-      session.addEventListener('end', function () {
-        hitTestSourceRequested = false;
-        hitTestSource = null;
-      });
-
-      hitTestSourceRequested = true;
-    }
-
-    if (hitTestSource) {
-
-      const hitTestResults = frame.getHitTestResults(hitTestSource);
-
-      if (hitTestResults.length > 0) {
-
-        const hit = hitTestResults[0];
-        const pose = hit.getPose(referenceSpace);
-
-        reticle.visible = true;
-        reticle.matrix.fromArray(pose.transform.matrix);
-        reticle.matrix.decompose(
-          reticle.position,
-          reticle.quaternion,
-          reticle.scale
-        );
-
-      } else {
-        reticle.visible = false;
-      }
-    }
-  }
-
-  renderer.render(scene, camera);
-}
-
 </script>
