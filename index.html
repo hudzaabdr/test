@@ -43,6 +43,11 @@ function init() {
   // LIGHT
   const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
   scene.add(light);
+  
+  const light2 = new THREE.DirectionalLight(0xffffff, 1);
+  light2.position.set(1, 2, 1);
+  scene.add(light2);
+
 
   // ✅ RETICLE (KEMBALIKAN KE RING)
   const geometry = new THREE.RingGeometry(0.08, 0.1, 32);
