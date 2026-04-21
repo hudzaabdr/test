@@ -80,7 +80,8 @@ function onSelect() {
       const model = gltf.scene;
 
       // 🔥 penting: scale lebih besar dulu biar kelihatan
-      model.scale.set(0.4, 0.4, 0.4);
+      model.scale.set(1, 1, 1);
+      model.position.y += 0.1;
 
       model.position.setFromMatrixPosition(reticle.matrix);
       model.quaternion.setFromRotationMatrix(reticle.matrix);
