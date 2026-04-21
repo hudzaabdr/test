@@ -1,19 +1,24 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/ar.js@3.4.5/aframe/build/aframe-ar.js"></script>
-  </head>
+<head>
+  <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ar.js@3.4.5/aframe/build/aframe-ar.js"></script>
+</head>
 
-  <body style="margin: 0; overflow: hidden;">
+<body style="margin:0; overflow:hidden;">
 
+  <!-- Tombol trigger -->
+  <button id="startAR" style="position: absolute; z-index: 999;">
+    Start AR
+  </button>
+
+  <!-- AR container (awalnya disembunyikan) -->
+  <div id="arContainer" style="display:none;">
     <a-scene 
       embedded 
-      arjs
-      style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;">
-
-     <a-scene embedded arjs="debugUIEnabled: true;">
-       
+      arjs="sourceType: webcam;"
+      style="position: fixed; top:0; left:0; width:100vw; height:100vh;">
+      
       <a-marker preset="hiro">
         <a-entity 
           gltf-model="https://modelviewer.dev/shared-assets/models/Astronaut.glb"
@@ -22,11 +27,14 @@
       </a-marker>
 
       <a-entity camera></a-entity>
-
     </a-scene>
+  </div>
 
-  </body>
+  <script>
+    document.getElementById("startAR").addEventListener("click", function() {
+      document.getElementById("arContainer").style.display = "block";
+    });
+  </script>
+
+</body>
 </html>
-
-
-
