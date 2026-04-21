@@ -59,12 +59,17 @@ function init() {
   controller = renderer.xr.getController(0);
   controller.addEventListener('select', onSelect);
   scene.add(controller);
-
+  
+  window.addEventListener('click', onSelect);
+  
   renderer.setAnimationLoop(render);
 }
 
 // SPAWN OBJECT (ini bikin stabil)
 function onSelect() {
+
+  console.log("TAP DETECTED"); 
+  
   if (reticle.visible) {
 
     const geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
