@@ -64,20 +64,27 @@ function init() {
 
 // ✅ SPAWN OBJECT (VERSI STABIL)
 function onSelect() {
-
   if (!reticle.visible) return;
 
-  const geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
-  const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
-  const mesh = new THREE.Mesh(geometry, material);
+  loader.load(
+    'https://modelviewer.dev/shared-assets/models/Astronaut.glb',
+    function (gltf) {
 
-  mesh.position.setFromMatrixPosition(reticle.matrix);
-  mesh.quaternion.setFromRotationMatrix(reticle.matrix);
+      const model = gltf.scene;
 
-  // OPTIONAL: biar tidak miring
-  mesh.rotation.set(0, 0, 0);
+      // 🔥 penting: scale lebih besar dulu biar kelihatan
+      model.scale.set(0.4, 0.4, 0.4);
 
-  scene.add(mesh);
+      model.position.setFromMatrixPosition(reticle.matrix);
+      model.quaternion.setFromRotationMatrix(reticle.matrix);
+
+      scene.add(model);
+    },
+    undefined,
+    function (error) {
+      console.error("GLB ERROR:", error);
+    }
+  );
 }
 
 // RENDER LOOP
