@@ -1,5 +1,11 @@
+<button id="startAR">Start AR</button>
+
+<script type="module">
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.158/build/three.module.js';
 import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@0.158/examples/jsm/webxr/ARButton.js';
+import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.158/examples/jsm/loaders/GLTFLoader.js'; // 🔥 AR-ADDED
+
+const loader = new GLTFLoader(); // 🔥 AR-ADDED
 
 let camera, scene, renderer;
 let controller;
@@ -12,9 +18,7 @@ init();
 
 function init() {
 
-  // SCENE
   scene = new THREE.Scene();
-
   camera = new THREE.PerspectiveCamera();
 
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -23,7 +27,6 @@ function init() {
 
   document.body.appendChild(renderer.domElement);
 
-  // AR BUTTON (hidden, trigger manual)
   const arButton = ARButton.createButton(renderer, {
     optionalFeatures: ['hit-test']
   });
@@ -35,11 +38,9 @@ function init() {
     arButton.click();
   };
 
-  // LIGHT
   const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
   scene.add(light);
 
-  // RETICLE (penunjuk permukaan)
   const geometry = new THREE.RingGeometry(0.08, 0.1, 32);
   const material = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide });
   reticle = new THREE.Mesh(geometry, material);
@@ -49,7 +50,6 @@ function init() {
 
   scene.add(reticle);
 
-  // CONTROLLER (tap)
   controller = renderer.xr.getController(0);
   controller.addEventListener('select', onSelect);
   scene.add(controller);
@@ -57,22 +57,32 @@ function init() {
   renderer.setAnimationLoop(render);
 }
 
-// SPAWN OBJECT (ini bikin stabil)
+// 🔥 HANYA BAGIAN INI YANG DIUBAH
 function onSelect() {
   if (reticle.visible) {
 
-    const geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
-    const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
-    const mesh = new THREE.Mesh(geometry, material);
+    loader.load(
+      'https://modelviewer.dev/shared-assets/models/Astronaut.glb',
+      function (gltf) {
 
-    mesh.position.setFromMatrixPosition(reticle.matrix);
-    mesh.quaternion.setFromRotationMatrix(reticle.matrix);
+        const model = gltf.scene;
 
-    scene.add(mesh);
+        model.scale.set(0.2, 0.2, 0.2);
+
+        model.position.setFromMatrixPosition(reticle.matrix);
+        model.quaternion.setFromRotationMatrix(reticle.matrix);
+
+        scene.add(model);
+      },
+      undefined,
+      function (error) {
+        console.error("GLB load error:", error);
+      }
+    );
+
   }
 }
 
-// RENDER LOOP + HIT TEST
 function render(timestamp, frame) {
 
   if (frame) {
@@ -80,7 +90,6 @@ function render(timestamp, frame) {
     const referenceSpace = renderer.xr.getReferenceSpace();
     const session = renderer.xr.getSession();
 
-    // REQUEST HIT TEST SOURCE
     if (!hitTestSourceRequested) {
 
       session.requestReferenceSpace('viewer').then(function (referenceSpace) {
@@ -97,7 +106,6 @@ function render(timestamp, frame) {
       hitTestSourceRequested = true;
     }
 
-    // HIT TEST RESULT
     if (hitTestSource) {
 
       const hitTestResults = frame.getHitTestResults(hitTestSource);
@@ -123,3 +131,4 @@ function render(timestamp, frame) {
 
   renderer.render(scene, camera);
 }
+</script>
