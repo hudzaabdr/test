@@ -5,7 +5,7 @@
 // ✅ IMPORT HARUS DI ATAS SEMUA
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.158/build/three.module.js';
 import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@0.158/examples/jsm/webxr/ARButton.js';
-// import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.158/examples/jsm/loaders/GLTFLoader.js'; // 🔥 nanti dipakai kalau sudah stabil
+import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.158/examples/jsm/loaders/GLTFLoader.js'; // 🔥 nanti dipakai kalau sudah stabil
 
 let camera, scene, renderer;
 let controller;
@@ -13,7 +13,7 @@ let reticle;
 
 let hitTestSource = null;
 let hitTestSourceRequested = false;
-
+const loader = new GLTFLoader();
 init();
 
 function init() {
@@ -68,20 +68,20 @@ function init() {
 }
 
 // ✅ SPAWN OBJECT (VERSI STABIL)
-function onSelect() {
+ function onSelect() {
   console.log("TAP DETECTED");
+
   if (!reticle.visible) return;
 
+  console.log("MODEL LOADING...");
+
   loader.load(
-    console.log("MODEL LOADING...");
     'https://modelviewer.dev/shared-assets/models/Astronaut.glb',
     function (gltf) {
 
       const model = gltf.scene;
 
-      // 🔥 penting: scale lebih besar dulu biar kelihatan
       model.scale.set(1, 1, 1);
-      model.position.y += 0.1;
 
       model.position.setFromMatrixPosition(reticle.matrix);
       model.quaternion.setFromRotationMatrix(reticle.matrix);
@@ -94,7 +94,6 @@ function onSelect() {
     }
   );
 }
-
 // RENDER LOOP
 function render(timestamp, frame) {
 
