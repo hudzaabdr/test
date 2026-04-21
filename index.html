@@ -24,9 +24,7 @@ function init() {
   document.body.appendChild(renderer.domElement);
 
   // AR BUTTON
-  const arButton = ARButton.createButton(renderer, {
-    optionalFeatures: ['hit-test']
-  });
+  const arButton = ARButton.createButton(renderer);
 
   arButton.style.display = "none";
   document.body.appendChild(arButton);
