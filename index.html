@@ -64,9 +64,11 @@ function init() {
 
 // ✅ SPAWN OBJECT (VERSI STABIL)
 function onSelect() {
+  console.log("TAP DETECTED");
   if (!reticle.visible) return;
 
   loader.load(
+    console.log("MODEL LOADING...");
     'https://modelviewer.dev/shared-assets/models/Astronaut.glb',
     function (gltf) {
 
