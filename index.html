@@ -105,24 +105,24 @@ function init() {
 function onSelect() {
   if (reticle.visible) {
 
-    const geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
-    const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
-    const mesh = new THREE.Mesh(geometry, material);
+    const loader = new GLTFLoader();
 
-    mesh.position.setFromMatrixPosition(reticle.matrix);
-    mesh.quaternion.setFromRotationMatrix(reticle.matrix);
+    loader.load(
+      'https://modelviewer.dev/shared-assets/models/Astronaut.glb', // ganti dengan link kamu
+      function (gltf) {
 
-    scene.add(mesh);
+        const model = gltf.scene;
+
+        model.scale.set(0.2, 0.2, 0.2);
+
+        model.position.setFromMatrixPosition(reticle.matrix);
+        model.quaternion.setFromRotationMatrix(reticle.matrix);
+
+        scene.add(model);
+      }
+    );
   }
 }
-
-// RENDER LOOP + HIT TEST
-function render(timestamp, frame) {
-
-  if (frame) {
-
-    const referenceSpace = renderer.xr.getReferenceSpace();
-    const session = renderer.xr.getSession();
 
     // REQUEST HIT TEST SOURCE
     if (!hitTestSourceRequested) {
@@ -167,3 +167,8 @@ function render(timestamp, frame) {
 
   renderer.render(scene, camera);
 }
+
+import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.158/examples/jsm/loaders/GLTFLoader.js';
+
+
+
