@@ -1,12 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WebXR AR</title>
-</head>
-
-<body>
-
 <button id="startAR">Start AR</button>
 
 <script type="module">
@@ -19,7 +10,6 @@ init();
 
 function init() {
   scene = new THREE.Scene();
-
   camera = new THREE.PerspectiveCamera();
 
   renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
@@ -28,18 +18,22 @@ function init() {
 
   document.body.appendChild(renderer.domElement);
 
-  // Tambahkan tombol AR
+  // 🔥 langsung buat tombol AR
+  const arButton = ARButton.createButton(renderer, {
+    requiredFeatures: ['hit-test']
+  });
+
+  arButton.style.display = "none"; // sembunyikan tombol default
+  document.body.appendChild(arButton);
+
+  // 🔥 trigger AR dari tombol kita
   document.getElementById("startAR").onclick = () => {
-    document.body.appendChild(ARButton.createButton(renderer, {
-      requiredFeatures: ['hit-test']
-    }));
+    arButton.click();
   };
 
-  // Objek sederhana (cube)
   const geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
   const material = new THREE.MeshBasicMaterial();
   const cube = new THREE.Mesh(geometry, material);
-
   scene.add(cube);
 
   renderer.setAnimationLoop(() => {
@@ -47,6 +41,3 @@ function init() {
   });
 }
 </script>
-
-</body>
-</html>
