@@ -67,21 +67,17 @@ function init() {
 function onSelect() {
   if (reticle.visible) {
 
-    loader.load(
-      'https://modelviewer.dev/shared-assets/models/Astronaut.glb',
-      function (gltf) {
+    const geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+    const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+    const mesh = new THREE.Mesh(geometry, material);
 
-        const model = gltf.scene;
+    mesh.position.setFromMatrixPosition(reticle.matrix);
+    mesh.quaternion.setFromRotationMatrix(reticle.matrix);
 
-        model.scale.set(0.2, 0.2, 0.2);
+    // 👉 TAMBAHKAN DI SINI
+    mesh.rotation.set(0, 0, 0);
 
-        model.position.setFromMatrixPosition(reticle.matrix);
-        model.quaternion.setFromRotationMatrix(reticle.matrix);
-
-        scene.add(model);
-      }
-    );
-
+    scene.add(mesh);
   }
 }
 // RENDER LOOP + HIT TEST
